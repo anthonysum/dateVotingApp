@@ -14,6 +14,7 @@ import HomeScreen from './Pages/HomeScreen.js';
 import EventScreen from './Pages/EventScreen.js';
 import DrawerContent from './Component/DrawerContent.js';
 import LoginScreen from './Pages/Login.js';
+import NotiScreen from './Pages/Noti.js'
 import useAuth from './ContextAndConfig/AuthContext.js';
 import {db} from './ContextAndConfig/firebaseConfig.js';
 
@@ -91,6 +92,8 @@ function App() {
                 options={({ route }) => ({
                   headerTitle: getHeaderTitle(route)})}
               />
+
+              <Drawer.Screen name="Notification" component={NotiScreen}/>
 
             </Drawer.Navigator>
           </NavigationContainer>

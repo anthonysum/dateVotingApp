@@ -41,6 +41,9 @@ function Screen({ navigation }) {
       const querySnapshot = await getDocs(q);
       setEventList(querySnapshot.docs);
     }
+    else{
+      setEventList([]);
+    }
     return () => {};
   }
 

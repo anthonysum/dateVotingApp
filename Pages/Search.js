@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { View, Text, Pressable, TextInput} from 'react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,8 +14,11 @@ import importStyle from '../style.js'
 
 function Screen({ navigation, 
   attenders, setAttenders, 
+  pending, setPending,
   organizers, setorganizers
 }) {
+
+  const user = useContext(UserContext);
   
   const insets = useSafeAreaInsets();
   const [searchMethod,setSearchMethod] = useState('email');
@@ -40,6 +43,7 @@ function Screen({ navigation,
   },[userQuery,searchMethod]);
 
   const attenderIDs = attenders.map((x)=> x.uid);
+  const pendingIDs = pending.map((x)=> x.uid);
 
   return (
     <View id="safe_area_with_header" style={{
@@ -84,20 +88,33 @@ function Screen({ navigation,
           <Pressable 
             style={[importStyle.searchResult]} 
             key={index}
-            disabled={attenderIDs.includes(doc.id)}
+            disabled={attenderIDs.includes(doc.id) || pendingIDs.includes(doc.id)}
             onPress={()=>{
-              setAttenders(attenders.concat([{
+              if(doc.id == user.uid){
+                setAttenders(attenders.concat([{
                 name: doc.data().user,
                 email: doc.data().email,
                 uid: doc.id
-              }]));
+                }]));
+              }
+              else{
+                setPending(pending.concat([{
+                  name: doc.data().user,
+                  email: doc.data().email,
+                  uid: doc.id
+                }]))
+              }
               navigation.goBack();
           }}>
             <Text style={[{fontSize:20 , fontWeight:'500', marginBottom:2 },
-              attenderIDs.includes(doc.id) ? {color:'#777'} : {color:'#333'}]}>
+              attenderIDs.includes(doc.id) || pendingIDs.includes(doc.id) ? 
+              {color:'#777'} : {color:'#333'}]}>
                 {doc.data().user}
             </Text>
-            <Text style={{color:'#777'}}>{attenderIDs.includes(doc.id) ? "User already added" : doc.data().email}</Text>
+            <Text style={{color:'#777'}}>
+              {attenderIDs.includes(doc.id) || pendingIDs.includes(doc.id) ? 
+                "User already added" : doc.data().email}
+            </Text>
           </Pressable>
         ))}
 

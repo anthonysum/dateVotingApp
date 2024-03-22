@@ -74,5 +74,14 @@ export default styles = StyleSheet.create({
       padding: 15,
       borderRadius: 18,
       flexDirection:'row', justifyContent:'space-evenly', alignItems:'center'
-    }
+    },
+    seperator:{
+      borderBottomColor:'#aaa', 
+      borderBottomWidth:1
+    },
+    avatar: {
+      borderRadius: 18,
+      width: 36,
+      height: 36
+    },
   });

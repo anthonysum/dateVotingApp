@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot,Timestamp } from "firebase/firestore";
 
 import { db } from '../ContextAndConfig/firebaseConfig.js'
 import { UserContext } from '../ContextAndConfig/UserContext.js';
@@ -16,6 +16,7 @@ import SearchUserPage from './Search.js';
 import styles from '../style.js';
 import {userInList, editEvent} from '../DataClass/event.js'
 import DateRow from '../Component/DateRow.js';
+import { Namebox } from '../Component/NameBox.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,7 @@ export default function Screen({ navigation }) {
 
     const [attenders, setAttenders] = useState([]);
     const [organizers, setorganizers] = useState([]);
+    const [pending, setPending] = useState([]);
 
     //removedAttenders: just storing the userID
     const [removedAttenders, setRemovedAttenders] = useState([]);
@@ -43,7 +45,8 @@ export default function Screen({ navigation }) {
                             setRemovedAttenders={setRemovedAttenders}
                             removedOrganizers={removedOrganizers}
                             setRemovedOrganizers={setRemovedOrganizers}
-                            />}
+                            pending={pending}
+                            setPending={setPending}/>}
         </Stack.Screen>
         <Stack.Screen name="Search User">
             {(props) => <SearchUserPage {...props} 
@@ -53,7 +56,8 @@ export default function Screen({ navigation }) {
                             setorganizers={setorganizers}
                             removedAttenders={removedAttenders}
                             setRemovedAttenders={setRemovedAttenders}
-                            />}
+                            pending={pending}
+                            setPending={setPending}/>}
         </Stack.Screen>
     </Stack.Navigator>);
 
@@ -63,7 +67,8 @@ export function EventPage({ route, navigation,
     attenders, setAttenders, 
     organizers, setorganizers, 
     removedAttenders, setRemovedAttenders,
-    removedOrganizers, setRemovedOrganizers}) {
+    removedOrganizers, setRemovedOrganizers,
+    pending, setPending}) {
 
     const user = useContext(UserContext);
     
@@ -84,7 +89,7 @@ export function EventPage({ route, navigation,
 
     const handleSubmit = ()=>{
         if(eventName.trim() && times.length && attenders.length){
-        editEvent(eventID, eventName, details, attenders, times, organizers, removedAttenders, removedOrganizers)
+        editEvent(user, eventID, eventName, details, attenders, times, organizers, removedAttenders, removedOrganizers, pending)
             .catch((e)=>{console.log(e)});
         navigation.goBack();
         }
@@ -136,8 +141,12 @@ export function EventPage({ route, navigation,
             const currentDate = selectedDate;
             setShow(false);
             setDate(currentDate);
+            
             if(mode == 'time'){
-                setTimes(times.concat([currentDate]))
+                setTimes(times.concat([{
+                    available: [],
+                    date : Timestamp.fromDate(currentDate)
+                }]));
             }
         }
         else if(event.type == 'dismissed'){
@@ -146,7 +155,7 @@ export function EventPage({ route, navigation,
         }
 
     };
-  
+
     const showDatepicker = () => {
         setShow(true);
         setMode('date');
@@ -185,7 +194,9 @@ export function EventPage({ route, navigation,
             setDetails(eventDoc.description);
             setTimes(eventDoc.dates);
             setAttenders(eventDoc.attendees);
-            setorganizers(eventDoc.organizers);}
+            setorganizers(eventDoc.organizers);
+            setPending(eventDoc.pending);
+        }
     },[eventDoc])
 
     //console.log(removedOrganizers);
@@ -277,6 +288,9 @@ export function EventPage({ route, navigation,
 
                     </View>
                 ))}
+                {pending.map((pendingUser, index) => (
+                    <Namebox attendees={pendingUser} index={index} list={pending} setList={setPending} key={index} note={'(Pending)'}></Namebox>
+                ))}
                 
                 <Pressable 
                     style={styles.outlineButton} 
@@ -312,7 +326,7 @@ export function EventPage({ route, navigation,
 
                             <Icon name="close" size={17} color="#333" style={{marginTop:2, marginLeft:3}}/>
                         </Pressable> */}
-                    <View style={{borderBottomColor:'#aaa', borderBottomWidth:1}}/>
+                    <View style={styles.seperator}/>
                     </View>
                 )})}
 

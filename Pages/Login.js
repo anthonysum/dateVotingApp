@@ -35,7 +35,8 @@ function RegisterScreen({ navigation, type }) {
               user: name.trim(),
               email: email,
               events: [],
-              organize:[]
+              organize:[],
+              pending:[]
             }).catch((e)=>{console.log(e)})
           });
         }

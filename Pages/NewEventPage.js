@@ -12,6 +12,7 @@ import { UserContext } from '../ContextAndConfig/UserContext.js';
 import SearchUserPage from './Search.js';
 import styles from '../style.js';
 import {addEvent} from '../DataClass/event.js'
+import { Namebox } from '../Component/NameBox.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,8 @@ export default function Screen({ navigation }) {
         uid: user.uid
       }]);
 
+    const [pending, setPending] = useState([]);
+
     const [organizers, setorganizers] = useState([{
         name: user.user,
         email: user.email,
@@ -35,16 +38,28 @@ export default function Screen({ navigation }) {
     <Stack.Navigator initialRouteName="New event page"
     screenOptions={{headerShown: false}}>
         <Stack.Screen name="New event page">
-            {(props) => <NewEventPage {...props} attenders={attenders} setAttenders={setAttenders} organizers={organizers} setorganizers={setorganizers}/>}
+            {(props) => <NewEventPage {...props} 
+                            attenders={attenders} 
+                            setAttenders={setAttenders} 
+                            organizers={organizers} 
+                            setorganizers={setorganizers}
+                            pending={pending}
+                            setPending={setPending}/>}
         </Stack.Screen>
         <Stack.Screen name="Search User">
-            {(props) => <SearchUserPage {...props} attenders={attenders} setAttenders={setAttenders} organizers={organizers} setorganizers={setorganizers}/>}
+            {(props) => <SearchUserPage {...props} 
+                            attenders={attenders} 
+                            setAttenders={setAttenders} 
+                            organizers={organizers} 
+                            setorganizers={setorganizers} 
+                            pending={pending}
+                            setPending={setPending}/>}
         </Stack.Screen>
     </Stack.Navigator>);
 
 }
 
-export function NewEventPage({ navigation, attenders, setAttenders, organizers, setorganizers }) {
+export function NewEventPage({ navigation, attenders, setAttenders, organizers, setorganizers, pending, setPending}) {
     const user = useContext(UserContext);
     
     const insets = useSafeAreaInsets();
@@ -63,8 +78,8 @@ export function NewEventPage({ navigation, attenders, setAttenders, organizers, 
     const handleSubmit = ()=>{
         //logAllData();
         if(eventName.trim() && times.length && attenders.length){
-        addEvent(eventName, details, attenders, times, organizers)
-        .catch((e)=>{console.log(e)});
+        addEvent(user, eventName, details, attenders, times, organizers, pending)
+            .catch((e)=>{console.log(e)});
         navigation.goBack();
         }
     }
@@ -205,23 +220,10 @@ export function NewEventPage({ navigation, attenders, setAttenders, organizers, 
 
             <View id='attendees' style={[styles.outlineButtonCluster,{marginBottom:30}]}>
                 {attenders.map((attendees, index) => (
-                    <View style={[styles.outlineButton,{marginBottom:10}]} key={index}> 
-                        
-                        <Text style={{}}> 
-                            {attendees.name || attendees.email}
-                        </Text>
-                        
-                        <Pressable onPress={()=>{
-                            setAttenders(
-                                attenders.slice(0, index)
-                                .concat(
-                                    attenders.slice(index+1)));
-                        }}>
-
-                            <Icon name="close" size={17} color="#333" style={{marginTop:2, marginLeft:3}}/>
-                        </Pressable>
-
-                    </View>
+                    <Namebox attendees={attendees} index={index} list={attenders} setList={setAttenders} key={index}></Namebox>
+                ))}
+                {pending.map((pendingUser, index) => (
+                    <Namebox attendees={pendingUser} index={index} list={pending} setList={setPending} key={index} note={'(Pending)'}></Namebox>
                 ))}
                 
                 <Pressable 
