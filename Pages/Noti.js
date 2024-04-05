@@ -20,7 +20,10 @@ export default function Screen({ navigation, type }) {
         }}>
             <ScrollView>
                 {user.pending.map((pendinEvent, index) => (
-                    <PendingBox eventID={pendinEvent.eventID} invite={pendinEvent.invite} key={index}/>
+                    <View key={index}>
+                        <PendingBox eventID={pendinEvent.eventID} invite={pendinEvent.invite}/>
+                        <View style={styles.seperator}/>
+                    </View>
                 ))
                 }
             </ScrollView>

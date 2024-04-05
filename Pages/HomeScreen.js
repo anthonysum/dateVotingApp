@@ -9,6 +9,7 @@ import { signOut } from 'firebase/auth';
 
 import { auth } from '../ContextAndConfig/firebaseConfig.js';
 import { UserContext } from '../ContextAndConfig/UserContext.js';
+import PendingBox from '../Component/PendingBox.js'
 import importStyle from '../style.js';
 
 function HomeScreen({ navigation }) {
@@ -17,6 +18,14 @@ function HomeScreen({ navigation }) {
   const headerHeight = useHeaderHeight();
 
   const user = useContext(UserContext);
+
+  let cardContent;
+  if(user && user?.pending && user?.pending?.length != 0){
+    cardContent = <PendingBox eventID={user.pending.at(-1).eventID} invite={user.pending.at(-1).invite} bounded={true}/>;
+  }
+  else{
+    cardContent = <></>
+  }
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -38,7 +47,8 @@ function HomeScreen({ navigation }) {
             height:"40%"
         }}>
 
-          <View id="top_card" style={[importStyle.card, {flex:1}]}>
+          <View id="top_card" style={[importStyle.card, {flex:1, justifyContent:'center'}]}>
+              {cardContent}
           </View>
 
         </View>

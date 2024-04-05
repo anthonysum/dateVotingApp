@@ -7,7 +7,6 @@ import { db} from '../ContextAndConfig/firebaseConfig.js'
 
 import styles from '../style.js';
 
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import default_avatar from '../assets/default_avatar.png';
 import { UserContext } from '../ContextAndConfig/UserContext.js';
 import { cancelInvitation, confirmInvitation } from '../DataClass/event.js';

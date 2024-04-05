@@ -5,8 +5,7 @@ export default styles = StyleSheet.create({
       backgroundColor:"#fff",
       borderRadius: 10,
       elevation: 5,
-      shadowColor: '#7',
-      padding: 15
+      shadowColor: '#7'
     },
     input: {
       fontSize: 15,

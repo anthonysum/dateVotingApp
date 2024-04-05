@@ -1,6 +1,6 @@
 import { collection, doc, addDoc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { db, events, users } from '../ContextAndConfig/firebaseConfig.js';
-import {addOrganizeToUser, addAttendeesToUser, removeOrganizeToUser, removeAttendeesToUser, addPendingToUser, fetchUser} from './user.js';
+import {addOrganizeToUser, addAttendeesToUser, removeOrganizeToUser, removeAttendeesToUser, addPendingToUser, fetchUser, removePendingToUser} from './user.js';
 
 
 export async function addEvent(user, name, details, attendees, dates, organizers, pending){
@@ -27,7 +27,7 @@ export async function addEvent(user, name, details, attendees, dates, organizers
 
 }
 
-export async function editEvent(user, eventID, name, details, attendees, dates, organizers, removedAttenders, removedOrganizers, pending){
+export async function editEvent(user, eventID, name, details, attendees, dates, organizers, removedAttenders, removedOrganizers, pending, removedPendings){
   
     const docRef = doc(db, 'events', eventID)
 
@@ -47,6 +47,10 @@ export async function editEvent(user, eventID, name, details, attendees, dates, 
       });
       removedOrganizers.forEach(async(organizer) => {
         removeOrganizeToUser(organizer, eventID)
+          .catch((e)=>{console.log(e)});
+      });
+      removedPendings.forEach(async(pending) => {
+        removePendingToUser(pending, eventID)
           .catch((e)=>{console.log(e)});
       });
       
