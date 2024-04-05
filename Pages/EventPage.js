@@ -31,6 +31,7 @@ export default function Screen({ navigation }) {
     //removedAttenders: just storing the userID
     const [removedAttenders, setRemovedAttenders] = useState([]);
     const [removedOrganizers, setRemovedOrganizers] = useState([]);
+    const [removedPendings, setRemovedPendings] = useState([]);
 
     return(
     <Stack.Navigator initialRouteName="Event page"
@@ -45,6 +46,8 @@ export default function Screen({ navigation }) {
                             setRemovedAttenders={setRemovedAttenders}
                             removedOrganizers={removedOrganizers}
                             setRemovedOrganizers={setRemovedOrganizers}
+                            removedPendings={removedPendings} 
+                            setRemovedPendings={setRemovedPendings}
                             pending={pending}
                             setPending={setPending}/>}
         </Stack.Screen>
@@ -68,6 +71,7 @@ export function EventPage({ route, navigation,
     organizers, setorganizers, 
     removedAttenders, setRemovedAttenders,
     removedOrganizers, setRemovedOrganizers,
+    removedPendings, setRemovedPendings,
     pending, setPending}) {
 
     const user = useContext(UserContext);
@@ -89,7 +93,7 @@ export function EventPage({ route, navigation,
 
     const handleSubmit = ()=>{
         if(eventName.trim() && times.length && attenders.length){
-        editEvent(user, eventID, eventName, details, attenders, times, organizers, removedAttenders, removedOrganizers, pending)
+        editEvent(user, eventID, eventName, details, attenders, times, organizers, removedAttenders, removedOrganizers, pending, removedPendings)
             .catch((e)=>{console.log(e)});
         navigation.goBack();
         }
@@ -255,7 +259,7 @@ export function EventPage({ route, navigation,
 
             <View id='attendees' style={[styles.outlineButtonCluster,{marginBottom:10}]}>
                 {attenders.map((attendees, index) => (
-                    <View style={[styles.outlineButton,{marginBottom:10}]} key={index}> 
+                    <View id='attendees_name' style={[styles.outlineButton,{marginBottom:10}]} key={index}> 
                         
                         <Text style={{}}> 
                             {attendees.name || attendees.email}
@@ -289,7 +293,27 @@ export function EventPage({ route, navigation,
                     </View>
                 ))}
                 {pending.map((pendingUser, index) => (
-                    <Namebox attendees={pendingUser} index={index} list={pending} setList={setPending} key={index} note={'(Pending)'}></Namebox>
+                    <View id='pending_name' style={[styles.outlineButton,{marginBottom:10}]} key={index}> 
+        
+                        <Text style={{}}> 
+                            {pendingUser.name || pendingUser.email} (pending)
+                        </Text>
+                        
+                        <Pressable onPress={()=>{
+                            //removedPendings: just storing the userID
+                            if(!removedPendings.includes(pendingUser.uid)){
+                                setRemovedPendings(removedPendings.concat([pendingUser.uid]));}
+
+                            setPending(
+                                pending.slice(0, index)
+                                .concat(
+                                    pending.slice(index+1)))
+                        }}>
+
+                            <Icon name="close" size={17} color="#333" style={{marginTop:2, marginLeft:3}}/>
+                        </Pressable>
+
+                    </View>
                 ))}
                 
                 <Pressable 

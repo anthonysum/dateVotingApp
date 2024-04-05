@@ -11,13 +11,12 @@ export async function addPendingToUser(invite, uid, eventID){
     });
 }
 
-export async function removePendingToUser(invite, uid, eventID){
-    const userDocRef = doc(db, "users", uid);
-    await updateDoc(userDocRef, {
-        pending: arrayRemove({
-            invite: invite,
-            eventID: eventID
-        })
+export async function removePendingToUser(uid, eventID){
+    rmUser = await fetchUser(uid);
+    uNewPending = rmUser.pending.filter((p) => p.eventID != eventID);
+    const uDocRef = doc(db, "users", uid);
+    await updateDoc(uDocRef, {
+      pending: uNewPending
     });
 }
 

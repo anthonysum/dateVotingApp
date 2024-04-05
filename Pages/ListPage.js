@@ -66,7 +66,7 @@ function Screen({ navigation }) {
 
         {eventList.map((doc, index) => (
           <Pressable 
-            style={[importStyle.card,{marginBottom:10}]} 
+            style={[importStyle.card,{marginBottom:10, padding:15}]} 
             key={index} 
             onPress={()=>{
               navigation.navigate('Event Page', {
